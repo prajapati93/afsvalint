@@ -1,0 +1,2 @@
+[console_scripts]
+svalint = afsvalint.cli:main

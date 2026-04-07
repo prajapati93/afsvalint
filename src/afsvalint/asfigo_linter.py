@@ -46,6 +46,9 @@ class BaseLintLogger:
         self.warningList = []
 
     def loadConfig(self, configFile):
+        if configFile is None:
+            self.logger.info(f"{self.prefix}: No config file provided. Using default settings.")
+            return {}
         try:
             with open(configFile, "rb") as file:
                 config = tomli.load(file)
@@ -109,13 +112,13 @@ class BaseLintLogger:
             self.logger.info(f"[{ruleId}] {count}")
 
 class AsFigoLinter(BaseLintLogger):
-    def __init__(self, configFile="config.toml", logLevel=logging.INFO):
+    def __init__(self, file_path=None, configFile="config.toml", logLevel=logging.INFO):
         super().__init__(prefix="AsFigo", configFile=configFile, logLevel=logLevel)
-        self.args = self.parseArguments()
-        self.testName = self.args.test
-
+        #self.args = self.parseArguments()
+        self.testName = file_path
+'''
     def parseArguments(self):
         parser = argparse.ArgumentParser(description="AsFigoLinter Argument Parser")
         parser.add_argument("-t", "--test", required=True, help="Input test name (file path)")
         return parser.parse_args()
-
+'''

@@ -90,6 +90,7 @@ import sys
 
 from . import verible_verilog_syntax
 from .asfigo_linter import AsFigoLinter
+from .af_lint_rule import AsFigoLintRule
 
 # Import all rules
 from afsvalint.rules.af_asrt_no_label import MissingLabelChk
@@ -121,13 +122,11 @@ from afsvalint.rules.af_no_pop_front_sva import AvoidPopFrSVA
 class SVALinter(AsFigoLinter):
     """Linter that applies multiple rules on SVA/SystemVerilog code"""
 
-    def __init__(self, file_path: str, configFile="config.toml", logLevel=logging.INFO):
-        super().__init__(configFile=configFile, logLevel=logLevel)
-        self.testName = file_path
+    def __init__(self, file_path, configFile="config.toml", logLevel=logging.INFO):
+        super().__init__(file_path=file_path, configFile=configFile, logLevel=logLevel)
+        #self.testName = file_path
         self.rules = [rule_cls(self) for rule_cls in AsFigoLintRule.__subclasses__()]
 
-        # Automatically discover and register all subclasses of AsFigoLintRule
-        self.rules = [rule_cls(self) for rule_cls in AsFigoLintRule.__subclasses__()]
 
     def loadSyntaxTree(self):
         """Load Verilog syntax tree using VeribleVerilogSyntax"""
@@ -136,7 +135,8 @@ class SVALinter(AsFigoLinter):
             # parse the file as a single string
             with open(self.testName, "r") as f:
                 code = f.read()
-            return parser.parse_string(code, options={"gen_tree": True})
+            tree = parser.parse_string(code, options={"gen_tree": True})
+            return {self.testName: tree}
         except FileNotFoundError:
             logging.error(f"File not found: {self.testName}")
             sys.exit(1)
@@ -164,6 +164,11 @@ def parse_args():
         help="Path to SystemVerilog (.sv) file to lint"
     )
     parser.add_argument(
+        "--config", "-c",
+        default="config.toml",
+        help="Path to configuration file (optional)"
+    )
+    parser.add_argument(
         "--verbose", "-v",
         action="store_true",
         help="Enable verbose logging"
@@ -176,7 +181,7 @@ def main():
     log_level = logging.DEBUG if args.verbose else logging.INFO
     logging.basicConfig(level=log_level, format="%(levelname)s: %(message)s")
 
-    linter = SVALinter(file_path=args.file, logLevel=log_level)
+    linter = SVALinter(file_path=args.file, configFile=args.config, logLevel=log_level)
     linter.runLinter()
 
 

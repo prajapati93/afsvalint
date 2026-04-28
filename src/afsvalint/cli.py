@@ -91,6 +91,7 @@ import sys
 from . import verible_verilog_syntax
 from .asfigo_linter import AsFigoLinter
 from .af_lint_rule import AsFigoLintRule
+from afsvalint import __version__
 
 # Import all rules
 from afsvalint.rules.af_asrt_no_label import MissingLabelChk
@@ -156,26 +157,35 @@ class SVALinter(AsFigoLinter):
 
             self.logSummary()
 
-
 def parse_args():
     parser = argparse.ArgumentParser(description="Run SVALint linter")
+
+    # optional positional file argument
     parser.add_argument(
         "file",
+        nargs="?",   # makes it optional
         help="Path to SystemVerilog (.sv) file to lint"
     )
+
     parser.add_argument(
         "--config", "-c",
         default="config.toml",
         help="Path to configuration file (optional)"
     )
+
     parser.add_argument(
         "--verbose", "-v",
         action="store_true",
         help="Enable verbose logging"
     )
+
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"SVALint {__version__}"
+    )
+
     return parser.parse_args()
-
-
 def main():
     args = parse_args()
     log_level = logging.DEBUG if args.verbose else logging.INFO

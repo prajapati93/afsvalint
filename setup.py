@@ -5,8 +5,8 @@ here = Path(__file__).parent
 long_description = (here / "README.md").read_text(encoding="utf-8")
 
 setup(
-    name="afsvalint",
-    version="2.3.3",  
+    name="svalint",
+    version="2.4.3",  
     packages=find_packages(where="src"),  
     package_dir={"": "src"},  
     python_requires=">=3.8",  
